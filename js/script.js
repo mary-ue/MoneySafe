@@ -66,7 +66,7 @@ const closeReport = ({ target }) => {
         opacity: 0,
         scale: 0,
         duration: .5,
-        easy: 'power2.in',
+        ease: 'power2.in',
         onComplete() {
           report.style.visibility = 'hidden';
         }
@@ -85,7 +85,7 @@ const openReport = () => {
     opacity: 1,
     scale: 1,
     duration: .5,
-    easy: 'power2.out',
+    ease: 'power2.out',
   });
 
 
