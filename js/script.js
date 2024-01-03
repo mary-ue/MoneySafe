@@ -3,11 +3,17 @@ import { OverlayScrollbars } from './overlayscrollbars.esm.min.js';
 
 const API_URL = 'https://speckle-pineapple-fahrenheit.glitch.me/api';
 
+const typesOperation = {
+  income: 'доход',
+  expenses: 'расход',
+}
+
 const financeForm = document.querySelector('.finance__form');
 const financeAmount = document.querySelector('.finance__amount');
 const financeReport = document.querySelector('.finance__report');
 const report = document.querySelector('.report');
 const reportOperationList = document.querySelector('.report__operation-list');
+const reportDates = document.querySelector('.report__dates');
 
 let amount = 0;
 
@@ -66,21 +72,24 @@ const openReport = () => {
 };
 
 // reformat date
-
+const reformatDate = (dateStr) => {
+  const [year, month, day] = dateStr.split('-');
+  return `${day.padStart(2, '0')}.${month.padStart(2, '0')}.${year}`
+}
 
 // render report 
 const renderReport = (data) => {
   reportOperationList.textContent = '';
 
-  const reportRows = data.map((operation) => {
+  const reportRows = data.map(({category, amount, description, date, type}) => {
     const reportRow = document.createElement('tr');
     reportRow.classList.add('report__row');
     reportRow.innerHTML = `
-      <td class="report__cell">${operation.category}</td>
-      <td class="report__cell">${operation.amount.toLocaleString()} ₽</td>
-      <td class="report__cell">${operation.description}</td>
-      <td class="report__cell">${operation.date}</td>
-      <td class="report__cell">${operation.type}</td>
+      <td class="report__cell">${category}</td>
+      <td class="report__cell" style="text-align: right">${amount.toLocaleString()}&nbsp;₽</td>
+      <td class="report__cell">${description}</td>
+      <td class="report__cell">${reformatDate(date)}</td>
+      <td class="report__cell">${typesOperation[type]}</td>
       <td class="report__action-cell">
       <button class="report__button report__button_table">&#10006;</button>
       </td>`;
@@ -97,4 +106,25 @@ financeReport.addEventListener('click', async () => {
   console.log('data: ', data);
   renderReport(data);
 });
+
+reportDates.addEventListener('submit', async (evt) => {
+  evt.preventDefault();
+
+  const formData = Object.fromEntries(new FormData(reportDates));
+
+  const searchParams = new URLSearchParams();
+  if (formData.startDate) {
+    searchParams.append('startDate', formData.startDate);
+  }
+  if (formData.endDate) {
+    searchParams.append('endDate', formData.endDate);
+  }
+  const queryString = searchParams.toString();
+
+  const url = queryString ? `/test?${queryString}` : '/test';
+
+  const data = await getData(url);
+  renderReport(data);
+})
+
 
