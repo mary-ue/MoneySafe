@@ -57,7 +57,7 @@ const renderReport = (data) => {
   reportOperationList.textContent = '';
 
   const reportRows = data.map(
-    ({ category, amount, description, date, type }) => {
+    ({ category, amount, description, date, type, id }) => {
       const reportRow = document.createElement('tr');
       reportRow.classList.add('report__row');
       reportRow.innerHTML = `
@@ -67,7 +67,7 @@ const renderReport = (data) => {
       <td class="report__cell">${reformatDate(date)}</td>
       <td class="report__cell">${typesOperation[type]}</td>
       <td class="report__action-cell">
-      <button class="report__button report__button_table">&#10006;</button>
+      <button class="report__button report__button_table" data-id=${id}>&#10006;</button>
       </td>`;
 
       return reportRow;
@@ -78,6 +78,10 @@ const renderReport = (data) => {
 };
 
 export const reportControl = () => {
+  reportOperationList.addEventListener('click', ({target}) => {
+    console.log(target.dataset.id);
+  });
+
   financeReport.addEventListener('click', async () => {
     const textContent = financeReport.textContent;
     financeReport.textContent = 'Загрузка...';

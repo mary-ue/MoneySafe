@@ -1,4 +1,5 @@
 import { convertStringNumber } from './helpers.js';
+import { getData, postData } from './service.js';
 
 const financeForm = document.querySelector('.finance__form');
 const financeAmount = document.querySelector('.finance__amount');
@@ -7,24 +8,46 @@ let amount = 0;
 
 financeAmount.textContent = amount;
 
-export const financeControl = () => {
-  financeForm.addEventListener('submit', (evt) => {
-    evt.preventDefault();
+const addNewOperation = async (evt) => {
+  evt.preventDefault();
 
-    const typeOperation = evt.submitter.dataset.typeOperation;
+  const typeOperation = evt.submitter.dataset.typeOperation;
 
-    const changeAmount = Math.abs(
-      convertStringNumber(financeForm.amount.value)
-    );
+  const financeFormDate = Object.fromEntries(new FormData(financeForm));
+  financeFormDate.type = typeOperation;
 
-    if (typeOperation === 'income') {
-      amount += changeAmount;
+  const newOperation = await postData('/finance', financeFormDate);
+
+  const changeAmount = Math.abs(convertStringNumber(newOperation.amount));
+
+  if (typeOperation === 'income') {
+    amount += changeAmount;
+  }
+
+  if (typeOperation === 'expenses') {
+    amount -= changeAmount;
+  }
+
+  financeAmount.textContent = `${amount.toLocaleString('RU-ru')} ₽`;
+  financeForm.reset();
+};
+
+export const financeControl = async () => {
+  const operations = await getData('/finance');
+
+  amount = operations.reduce((acc, item) => {
+    if (item.type === 'income') {
+      acc += convertStringNumber(item.amount);
     }
 
-    if (typeOperation === 'expenses') {
-      amount -= changeAmount;
+    if (item.type === 'expenses') {
+      acc -= convertStringNumber(item.amount);
     }
 
-    financeAmount.textContent = `${amount.toLocaleString('RU-ru')} ₽`;
-  });
+    return acc;
+  }, 0);
+
+  financeAmount.textContent = `${amount.toLocaleString('RU-ru')} ₽`;
+
+  financeForm.addEventListener('submit', addNewOperation);
 };
