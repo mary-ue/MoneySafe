@@ -1,3 +1,4 @@
+import { dataListControl } from './dataListControl.js';
 import { financeControl } from './financeControl.js';
 import { reportControl } from './reportControl.js';
 
@@ -20,6 +21,7 @@ const init = async () => {
   // await getIpAddress();
   financeControl();
   reportControl();
+  dataListControl();
 };
 
 init();
