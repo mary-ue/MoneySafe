@@ -1,6 +1,7 @@
+import { financeControl } from './financeControl.js';
 import { reformatDate } from './helpers.js';
 import { OverlayScrollbars } from './overlayscrollbars.esm.min.js';
-import { getData } from './service.js';
+import { delData, getData } from './service.js';
 
 const typesOperation = {
   income: 'доход',
@@ -78,8 +79,17 @@ const renderReport = (data) => {
 };
 
 export const reportControl = () => {
-  reportOperationList.addEventListener('click', ({target}) => {
-    console.log(target.dataset.id);
+  reportOperationList.addEventListener('click', async ({target}) => {
+    const buttonDel = target.closest('.report__button_table');
+
+    if (buttonDel) {
+      await delData(`/finance/${buttonDel.dataset.id}`);
+
+      const reportRow = buttonDel.closest('.report__row');
+      reportRow.remove();
+      financeControl();
+      // !todo  clearChart();
+    }
   });
 
   financeReport.addEventListener('click', async () => {
